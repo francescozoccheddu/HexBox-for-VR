@@ -25,6 +25,7 @@ add_executable (gui
     "src/Widgets/DirectVertEdit.cpp"
     "src/Widgets/Projection.cpp"
     "src/Widgets/Save.cpp"
+    "src/Widgets/Loxroq2Exporter.cpp"
 )
 
 set_target_properties (gui PROPERTIES

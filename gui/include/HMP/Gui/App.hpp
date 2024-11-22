@@ -31,6 +31,7 @@ namespace HMP::Gui
 		class Projection;
 		class Smooth;
 		class Ae3d2ShapeExporter;
+		class Loxroq2Exporter;
 		class Commander;
 		class Actions;
 		class Highlight;
@@ -79,6 +80,7 @@ namespace HMP::Gui
 		Widgets::DirectVertEdit& directVertEditWidget;
 		Widgets::Save& saveWidget;
 		Widgets::Projection& projectionWidget;
+		Widgets::Loxroq2Exporter& loxroq2ExporterWidget;
 		Widgets::Debug& debugWidget;
 		Widgets::Pad& padWidget;
 		Widgets::Smooth& smoothWidget;
@@ -131,9 +133,9 @@ namespace HMP::Gui
 		static int run(const std::optional<std::string>& _file = std::nullopt);
 
 		Dag::Element* copiedElement{};
-        std::vector<Widget*> clickedWidgets;
-        std::vector<Dag::Element*> clickedElements;
-        std::vector<App::Cursor> cursorsOfClickedElements;
+		std::vector<Widget*> clickedWidgets;
+		std::vector<Dag::Element*> clickedElements;
+		std::vector<App::Cursor> cursorsOfClickedElements;
 
 		const Dag::Element& root() const;
 
