@@ -49,6 +49,7 @@ namespace HMP::Gui::Widgets
 			for (Id pid{}; pid < mesh.num_polys(); pid++)
 			{
 				const std::vector<Id> vids{mesh.poly_verts_id(pid)};
+				serializer << vids.size();
 				for (const Id vid : vids)
 				{
 					serializer << vid;
