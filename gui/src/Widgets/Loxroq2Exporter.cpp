@@ -14,12 +14,14 @@
 #include <cinolib/quality_hex.h>
 #include <HMP/Gui/Widgets/Target.hpp>
 #include <cpputils/serialization/Serializer.hpp>
+#include <cpputils/range/of.hpp>
 
 namespace HMP::Gui::Widgets
 {
 
-	Loxroq2Exporter::Loxroq2Exporter() : SidebarWidget{ "loxroq2 exporter" }
-	{}
+	Loxroq2Exporter::Loxroq2Exporter() : SidebarWidget{"loxroq2 exporter"}
+	{
+	}
 
 	void Loxroq2Exporter::drawSidebar()
 	{
@@ -31,35 +33,44 @@ namespace HMP::Gui::Widgets
 
 	void Loxroq2Exporter::run() const
 	{
-		const std::optional<std::string> filename{ Utils::FilePicking::save("mesh") };
+		const std::optional<std::string> filename{Utils::FilePicking::save("mesh")};
 		if (filename)
 		{
 			std::ofstream file{};
 			file.open(*filename);
-			HMP::Utils::Serialization::Serializer serializer{ file };
-			const Meshing::Mesher::Mesh& mesh{ app().mesh };
+			HMP::Utils::Serialization::Serializer serializer{file};
+			const Meshing::Mesher::Mesh &mesh{app().mesh};
 			serializer << mesh.vector_verts().size();
-			for (const Vec& vec : mesh.vector_verts())
+			for (const Vec &vec : mesh.vector_verts())
 			{
 				serializer << vec;
 			}
 			serializer << mesh.num_polys();
 			for (Id pid{}; pid < mesh.num_polys(); pid++)
 			{
-				for (const Id vid : mesh.poly_verts_id(pid))
+				const std::vector<Id> vids{mesh.poly_verts_id(pid)};
+				for (const Id vid : vids)
 				{
 					serializer << vid;
 				}
 				serializer << cinolib::hex_scaled_jacobian(
-					mesh.poly_vert(pid, 0),
-					mesh.poly_vert(pid, 1),
-					mesh.poly_vert(pid, 2),
-					mesh.poly_vert(pid, 3),
-					mesh.poly_vert(pid, 4),
-					mesh.poly_vert(pid, 5),
-					mesh.poly_vert(pid, 6),
-					mesh.poly_vert(pid, 7)
-				);
+						mesh.poly_vert(pid, 0),
+						mesh.poly_vert(pid, 1),
+						mesh.poly_vert(pid, 2),
+						mesh.poly_vert(pid, 3),
+						mesh.poly_vert(pid, 4),
+						mesh.poly_vert(pid, 5),
+						mesh.poly_vert(pid, 6),
+						mesh.poly_vert(pid, 7));
+				serializer << 6 * 2;
+				for (const Id fid : mesh.adj_p2f(pid))
+				{
+					const std::vector<Id> &tris{mesh.face_tessellation(fid)};
+					for (const Id vid : tris)
+					{
+						serializer << std::find(vids.begin(), vids.end(), vid) - vids.begin();
+					}
+				}
 			}
 			file.close();
 		}
