@@ -43,6 +43,9 @@ namespace HMP
 	template<typename TData>
 	using EdgeVertData = std::array<TData, 2>;
 
+	template<typename TData>
+	using TriVertData = std::array<TData, 3>;
+
 	using HexVerts = HexVertData<Vec>;
 	using HexVertIds = HexVertData<Id>;
 	using HexVertIs = HexVertData<I>;
@@ -58,5 +61,7 @@ namespace HMP
 	using EdgeVerts = EdgeVertData<Vec>;
 	using EdgeVertIds = EdgeVertData<Id>;
 	using EdgeVertIs = EdgeVertData<I>;
+	using TriVertIds = TriVertData<Id>;
+	using TriVertIs = TriVertData<I>;
 
 }

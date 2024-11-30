@@ -15,6 +15,7 @@
 #include <HMP/Gui/Widgets/Target.hpp>
 #include <cpputils/serialization/Serializer.hpp>
 #include <cpputils/range/of.hpp>
+#include <cpputils/range/index.hpp>
 
 namespace HMP::Gui::Widgets
 {
@@ -45,12 +46,18 @@ namespace HMP::Gui::Widgets
 			{
 				serializer << vec;
 			}
-			serializer << mesh.num_polys();
+			serializer << cpputils::range::count(static_cast<Id>(mesh.num_polys())).map([&](const Id _pid) {
+				return app().mesher.shown(_pid) ? 1 : 0;
+			}).sum();
 			for (Id pid{}; pid < mesh.num_polys(); pid++)
 			{
-				const std::vector<Id> vids{mesh.poly_verts_id(pid)};
-				serializer << vids.size();
-				for (const Id vid : vids)
+				if (!app().mesher.shown(pid))
+				{
+					continue;
+				}
+				const std::vector<Id> polyVids{mesh.poly_verts_id(pid)};
+				serializer << polyVids.size();
+				for (const Id vid : polyVids)
 				{
 					serializer << vid;
 				}
@@ -66,10 +73,17 @@ namespace HMP::Gui::Widgets
 				serializer << 6 * 2;
 				for (const Id fid : mesh.adj_p2f(pid))
 				{
-					const std::vector<Id> &tris{mesh.face_tessellation(fid)};
-					for (const Id vid : tris)
+					std::vector<Id> faceVids{mesh.face_verts_id(fid)};
+					if (mesh.poly_face_is_CW(pid, fid))
 					{
-						serializer << std::find(vids.begin(), vids.end(), vid) - vids.begin();
+						std::reverse(faceVids.begin(), faceVids.end());
+					}
+					for (const TriVertIs triIs : {TriVertIs{0, 1, 2}, TriVertIs{0, 2, 3}})
+					{
+						for (const I i : triIs)
+						{
+							serializer << std::find(polyVids.begin(), polyVids.end(), faceVids[i]) - polyVids.begin();
+						}
 					}
 				}
 			}
