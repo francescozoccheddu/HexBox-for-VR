@@ -46,9 +46,9 @@ namespace HMP::Gui::Widgets
 			{
 				serializer << vec;
 			}
-			serializer << cpputils::range::count(static_cast<Id>(mesh.num_polys())).map([&](const Id _pid) {
-				return app().mesher.shown(_pid) ? 1 : 0;
-			}).sum();
+			serializer << cpputils::range::count(static_cast<Id>(mesh.num_polys())).map([&](const Id _pid)
+																																									{ return app().mesher.shown(_pid) ? 1 : 0; })
+												.sum();
 			for (Id pid{}; pid < mesh.num_polys(); pid++)
 			{
 				if (!app().mesher.shown(pid))
@@ -70,7 +70,7 @@ namespace HMP::Gui::Widgets
 						mesh.poly_vert(pid, 5),
 						mesh.poly_vert(pid, 6),
 						mesh.poly_vert(pid, 7));
-				serializer << 6 * 2;
+				serializer << mesh.adj_p2f(pid).size();
 				for (const Id fid : mesh.adj_p2f(pid))
 				{
 					std::vector<Id> faceVids{mesh.face_verts_id(fid)};
@@ -78,12 +78,10 @@ namespace HMP::Gui::Widgets
 					{
 						std::reverse(faceVids.begin(), faceVids.end());
 					}
-					for (const TriVertIs triIs : {TriVertIs{0, 1, 2}, TriVertIs{0, 2, 3}})
+					serializer << faceVids.size();
+					for (const Id &vid : faceVids)
 					{
-						for (const I i : triIs)
-						{
-							serializer << std::find(polyVids.begin(), polyVids.end(), faceVids[i]) - polyVids.begin();
-						}
+						serializer << std::find(polyVids.begin(), polyVids.end(), vid) - polyVids.begin();
 					}
 				}
 			}
